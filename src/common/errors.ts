@@ -24,6 +24,7 @@ export const ErrorCode = {
   EMPTY_CONTENT: 1011,
   FOLLOW_SELF: 1012,
   INVALID_MOOD: 1013,
+  GROUP_TOO_SMALL: 1014,
   RATE_LIMITED: 4290,
   INTERNAL: 5000,
 } as const;

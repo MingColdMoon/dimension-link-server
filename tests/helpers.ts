@@ -61,7 +61,7 @@ export async function getTestContext(): Promise<TestContext> {
 export async function resetData(pg: Pool, redis: Redis): Promise<void> {
   await pg.query(`
     TRUNCATE
-      messages, conversation_unreads, conversations, notices,
+      messages, conversation_unreads, conversation_members, conversations, notices,
       comments, post_likes, post_stars, posts,
       circle_members, follows, users, circles
     RESTART IDENTITY CASCADE

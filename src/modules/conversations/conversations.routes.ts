@@ -1,12 +1,15 @@
 import Router from "@koa/router";
 import { z } from "zod";
 import { firstQuery, ok, parseBody, parseLimit } from "../../common/http.js";
+import { AppError, ErrorCode } from "../../common/errors.js";
 import { requireAuth } from "../../middleware/auth.js";
 import type { AppContext, AppDeps, AppState } from "../../types.js";
 import { ConversationService } from "./conversations.service.js";
 
 const ensureSchema = z.object({
-  peerId: z.string().min(1, "住民不存在"),
+  peerId: z.string().min(1).optional(),
+  memberIds: z.array(z.string()).optional(),
+  title: z.string().optional(),
 });
 
 const messageSchema = z.object({
@@ -24,6 +27,14 @@ export function createConversationRouter(deps: AppDeps): Router<AppState, AppCon
 
   router.post("/", async (ctx) => {
     const input = parseBody(ensureSchema, ctx.request.body ?? {});
+    const memberIds = input.memberIds ?? [];
+    if (memberIds.length > 0) {
+      ctx.body = ok(await service.createGroup(ctx.state.user!.id, memberIds, input.title));
+      return;
+    }
+    if (!input.peerId) {
+      throw new AppError(422, ErrorCode.GROUP_TOO_SMALL, "请选择私聊对象或拉群成员");
+    }
     ctx.body = ok(await service.ensure(ctx.state.user!.id, input.peerId));
   });
 

@@ -157,6 +157,33 @@ describe("次元链接社交 API", () => {
     expect(read.body.data.unread).toBe(0);
   });
 
+  it("可以拉群，群消息会增加其他成员未读", async () => {
+    const token = (await login(ctx.app)).body.data.accessToken as string;
+    const auth = { Authorization: `Bearer ${token}` };
+    const created = await request(ctx.app.callback()).post("/v1/conversations").set(auth).send({
+      memberIds: ["u_sakurai", "u_tsukimi"],
+      title: "漫展小队",
+    });
+    expect(created.status).toBe(200);
+    expect(created.body.data.kind).toBe("group");
+    expect(created.body.data.title).toBe("漫展小队");
+    expect(created.body.data.members.length).toBe(3);
+    const convId = created.body.data.id as string;
+
+    const sent = await request(ctx.app.callback())
+      .post(`/v1/conversations/${convId}/messages`)
+      .set(auth)
+      .send({ text: "集合啦" });
+    expect(sent.status).toBe(200);
+
+    const sakurai = await login(ctx.app, "桜井澪");
+    const peerAuth = { Authorization: `Bearer ${sakurai.body.data.accessToken}` };
+    const peerList = await request(ctx.app.callback()).get("/v1/conversations").set(peerAuth);
+    const peerConv = peerList.body.data.find((item: { id: string }) => item.id === convId);
+    expect(peerConv.kind).toBe("group");
+    expect(peerConv.unread).toBeGreaterThanOrEqual(1);
+  });
+
   it("搜索开黑命中动态，搜索桜井命中用户", async () => {
     const token = (await login(ctx.app)).body.data.accessToken as string;
     const auth = { Authorization: `Bearer ${token}` };

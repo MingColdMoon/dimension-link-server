@@ -156,6 +156,10 @@ export const openApiDocument = {
         type: "object",
         properties: {
           id: { type: "string" },
+          kind: { type: "string", enum: ["direct", "group"] },
+          title: { type: "string", nullable: true },
+          ownerId: { type: "string", nullable: true },
+          members: { type: "array", items: { $ref: "#/components/schemas/UserPublic" } },
           peer: { $ref: "#/components/schemas/UserPublic" },
           unread: { type: "integer" },
           lastMessage: { allOf: [{ $ref: "#/components/schemas/ChatMessageItem" }], nullable: true },
@@ -168,7 +172,7 @@ export const openApiDocument = {
           title: { type: "string" },
           body: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
-          kind: { type: "string", enum: ["badge", "star", "circle", "like", "follow", "comment"] },
+          kind: { type: "string", enum: ["badge", "star", "circle", "like", "follow", "comment", "group"] },
         },
       },
       PageMeta: {
@@ -625,21 +629,28 @@ export const openApiDocument = {
       },
       post: {
         tags: ["私信"],
-        summary: "确保会话",
+        summary: "确保私信或拉群",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["peerId"],
-                properties: { peerId: { type: "string", example: "u_sakurai" } },
+                properties: {
+                  peerId: { type: "string", example: "u_sakurai", description: "一对一私信" },
+                  memberIds: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "拉群成员，至少两位（不含自己）",
+                  },
+                  title: { type: "string", example: "漫展小队" },
+                },
               },
             },
           },
         },
         responses: {
-          "200": { description: "已存在则返回已有会话", content: { "application/json": { schema: success("ConversationItem") } } },
+          "200": { description: "已存在则返回已有私信，或新建群聊", content: { "application/json": { schema: success("ConversationItem") } } },
         },
       },
     },

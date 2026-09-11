@@ -89,6 +89,10 @@ export interface ChatMessageItem {
 
 export interface ConversationItem {
   id: string;
+  kind: "direct" | "group";
+  title: string | null;
+  ownerId: string | null;
+  members: UserPublic[];
   peer: UserPublic;
   unread: number;
   lastMessage: ChatMessageItem | null;

@@ -244,9 +244,12 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
     await client.query("DELETE FROM notices WHERE user_id = ANY($1::text[])", [seedIds]);
     await client.query("DELETE FROM messages WHERE sender_id = ANY($1::text[])", [seedIds]);
     await client.query("DELETE FROM conversation_unreads WHERE user_id = ANY($1::text[])", [seedIds]);
-    await client.query("DELETE FROM conversations WHERE user_low = ANY($1::text[]) OR user_high = ANY($1::text[])", [
-      seedIds,
-    ]);
+    await client.query(
+      `DELETE FROM conversations WHERE id IN (
+         SELECT conversation_id FROM conversation_members WHERE user_id = ANY($1::text[])
+       ) OR user_low = ANY($1::text[]) OR user_high = ANY($1::text[])`,
+      [seedIds],
+    );
     await client.query("DELETE FROM comments WHERE user_id = ANY($1::text[])", [seedIds]);
     await client.query("DELETE FROM post_likes WHERE user_id = ANY($1::text[])", [seedIds]);
     await client.query("DELETE FROM post_stars WHERE user_id = ANY($1::text[])", [seedIds]);
@@ -381,13 +384,32 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
     ];
     for (const conv of convs) {
       const [low, high] = conv.a < conv.b ? [conv.a, conv.b] : [conv.b, conv.a];
-      await client.query("INSERT INTO conversations (id, user_low, user_high) VALUES ($1,$2,$3)", [conv.id, low, high]);
+      await client.query(
+        "INSERT INTO conversations (id, user_low, user_high, kind, owner_id) VALUES ($1,$2,$3,'direct',$4)",
+        [conv.id, low, high, conv.a],
+      );
+      await client.query(
+        "INSERT INTO conversation_members (conversation_id, user_id) VALUES ($1,$2), ($1,$3)",
+        [conv.id, conv.a, conv.b],
+      );
       await client.query("INSERT INTO conversation_unreads (conversation_id, user_id, unread) VALUES ($1,$2,$3), ($1,$4,$5)", [
         conv.id,
         "u_me",
         conv.unreadMe,
         conv.a === "u_me" ? conv.b : conv.a,
         conv.unreadPeer,
+      ]);
+    }
+
+    await client.query(
+      "INSERT INTO conversations (id, kind, title, owner_id) VALUES ($1,'group',$2,$3)",
+      ["cv_group", "漫展小队", "u_me"],
+    );
+    for (const memberId of ["u_me", "u_sakurai", "u_tsukimi"]) {
+      await client.query("INSERT INTO conversation_members (conversation_id, user_id) VALUES ($1,$2)", ["cv_group", memberId]);
+      await client.query("INSERT INTO conversation_unreads (conversation_id, user_id, unread) VALUES ($1,$2,0)", [
+        "cv_group",
+        memberId,
       ]);
     }
 
@@ -399,6 +421,7 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
       { id: "m5", convId: "cv2", senderId: "u_me", text: "哇真的吗，我要去连夜补番外！", createdAt: ago({ days: 1, hours: 1 }) },
       { id: "m6", convId: "cv3", senderId: "u_kaede", text: "辅助位还空着哦。", createdAt: ago({ hours: 2 }) },
       { id: "m7", convId: "cv3", senderId: "u_kaede", text: "语音房间开好了，密码是 sakura。", createdAt: ago({ minutes: 25 }) },
+      { id: "mg1", convId: "cv_group", senderId: "u_sakurai", text: "群建好啦，返图都丢这里～", createdAt: ago({ hours: 3 }) },
     ];
     for (const message of messages) {
       await client.query(
