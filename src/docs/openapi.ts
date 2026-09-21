@@ -18,9 +18,10 @@ export const openApiDocument = {
     { name: "住民", description: "当前用户、主页与关注" },
     { name: "动态", description: "广场、发布、点赞、星标、评论" },
     { name: "圈子", description: "圈子列表与加入" },
-    { name: "私信", description: "会话、消息与已读" },
+    { name: "私信", description: "会话、消息、群管理与已读" },
     { name: "通知", description: "系统通知" },
     { name: "搜索", description: "住民 / 圈子 / 动态" },
+    { name: "匹配", description: "AI 推荐附近、同好与默契住民" },
   ],
   components: {
     securitySchemes: {
@@ -71,6 +72,9 @@ export const openApiDocument = {
           level: { type: "integer" },
           badges: { type: "array", items: { type: "string" } },
           isFollowing: { type: "boolean" },
+          city: { type: "string", example: "上海" },
+          district: { type: "string", example: "徐汇" },
+          hobbies: { type: "array", items: { type: "string" } },
           joinedCircleIds: {
             type: "array",
             items: { type: "string" },
@@ -150,6 +154,8 @@ export const openApiDocument = {
           senderId: { type: "string" },
           text: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
+          kind: { type: "string", enum: ["text", "image", "system"] },
+          imageUrl: { type: "string", nullable: true },
         },
       },
       ConversationItem: {
@@ -159,6 +165,9 @@ export const openApiDocument = {
           kind: { type: "string", enum: ["direct", "group"] },
           title: { type: "string", nullable: true },
           ownerId: { type: "string", nullable: true },
+          adminIds: { type: "array", items: { type: "string" } },
+          mutedUserIds: { type: "array", items: { type: "string" } },
+          groupMuted: { type: "boolean" },
           members: { type: "array", items: { $ref: "#/components/schemas/UserPublic" } },
           peer: { $ref: "#/components/schemas/UserPublic" },
           unread: { type: "integer" },
@@ -180,6 +189,21 @@ export const openApiDocument = {
         properties: {
           nextCursor: { type: "string", nullable: true },
           hasMore: { type: "boolean" },
+        },
+      },
+      MatchCandidate: {
+        type: "object",
+        properties: {
+          user: { $ref: "#/components/schemas/UserPublic" },
+          mode: { type: "string", enum: ["nearby", "hobby", "affinity"] },
+          score: { type: "integer", minimum: 1, maximum: 99, example: 92 },
+          distanceKm: { type: "number", example: 1.2 },
+          city: { type: "string", example: "上海" },
+          district: { type: "string", example: "徐汇" },
+          hobbies: { type: "array", items: { type: "string" }, example: ["插画", "同人"] },
+          sharedHobbies: { type: "array", items: { type: "string" }, example: ["插画"] },
+          reason: { type: "string", example: "次元共振 92%：因插画紧紧咬合。" },
+          online: { type: "boolean" },
         },
       },
     },
@@ -679,15 +703,115 @@ export const openApiDocument = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["text"],
-                properties: { text: { type: "string", example: "来！我带新画的小立牌。" } },
+                properties: {
+                  text: { type: "string", example: "来！我带新画的小立牌。" },
+                  kind: { type: "string", enum: ["text", "image"] },
+                  imageUrl: { type: "string", example: "illustration:330", description: "插画卡或 /uploads 地址" },
+                  imageBase64: { type: "string", description: "相册图片的 Base64" },
+                  mimeType: { type: "string", example: "image/jpeg" },
+                },
               },
             },
           },
         },
         responses: {
           "200": { description: "新建消息", content: { "application/json": { schema: success("ChatMessageItem") } } },
+          "403": error(1016, "你已被禁言"),
           "422": error(1011, "先写点什么再发布吧"),
+        },
+      },
+    },
+    "/v1/conversations/{id}": {
+      get: {
+        tags: ["私信"],
+        summary: "会话详情",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          "200": { description: "当前用户可见的会话", content: { "application/json": { schema: success("ConversationItem") } } },
+        },
+      },
+    },
+    "/v1/conversations/{id}/admins": {
+      post: {
+        tags: ["私信"],
+        summary: "设为管理员（群主）",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { type: "object", required: ["userId"], properties: { userId: { type: "string" } } } } },
+        },
+        responses: {
+          "200": { description: "更新后的群", content: { "application/json": { schema: success("ConversationItem") } } },
+          "403": error(1015, "只有群主能设置管理员"),
+        },
+      },
+    },
+    "/v1/conversations/{id}/admins/{userId}": {
+      delete: {
+        tags: ["私信"],
+        summary: "取消管理员（群主）",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          { name: "userId", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "更新后的群", content: { "application/json": { schema: success("ConversationItem") } } },
+        },
+      },
+    },
+    "/v1/conversations/{id}/mute": {
+      post: {
+        tags: ["私信"],
+        summary: "禁言 / 解禁",
+        description: "传 userId 则禁言该成员；不传则全员禁言。",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["muted"],
+                properties: { userId: { type: "string" }, muted: { type: "boolean" } },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "更新后的群", content: { "application/json": { schema: success("ConversationItem") } } },
+          "403": error(1015, "没有权限禁言这位住民"),
+        },
+      },
+    },
+    "/v1/conversations/{id}/kick": {
+      post: {
+        tags: ["私信"],
+        summary: "移出群成员",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: { "application/json": { schema: { type: "object", required: ["userId"], properties: { userId: { type: "string" } } } } },
+        },
+        responses: {
+          "200": { description: "更新后的群", content: { "application/json": { schema: success("ConversationItem") } } },
+        },
+      },
+    },
+    "/v1/conversations/{id}/leave": {
+      post: {
+        tags: ["私信"],
+        summary: "退群",
+        description: "群主退群会把群主交给管理员或下一位成员；最后一人退群则解散。",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          "200": {
+            description: "已离开",
+            content: {
+              "application/json": {
+                schema: successInline({ type: "object", properties: { left: { type: "boolean", example: true } } }),
+              },
+            },
+          },
         },
       },
     },
@@ -718,6 +842,50 @@ export const openApiDocument = {
         parameters: [{ $ref: "#/components/parameters/Cursor" }, { $ref: "#/components/parameters/Limit" }],
         responses: {
           "200": { description: "时间倒序", content: { "application/json": { schema: successInline(page("NoticeItem")) } } },
+        },
+      },
+    },
+    "/v1/match/recommend": {
+      get: {
+        tags: ["匹配"],
+        summary: "AI 推荐附近 / 同好 / 默契住民",
+        parameters: [
+          {
+            name: "mode",
+            in: "query",
+            schema: { type: "string", enum: ["nearby", "hobby", "affinity"], default: "affinity" },
+            description: "nearby 附近 / hobby 同好 / affinity 默契",
+          },
+          { $ref: "#/components/parameters/Limit" },
+        ],
+        responses: {
+          "200": {
+            description: "按推荐分倒序，不含自己与已心动对象",
+            content: { "application/json": { schema: successInline(page("MatchCandidate")) } },
+          },
+        },
+      },
+    },
+    "/v1/match/{userId}/like": {
+      post: {
+        tags: ["匹配"],
+        summary: "对住民心动",
+        description: "记录心动并在尚未关注时自动关注。重复调用仍返回 liked=true。",
+        parameters: [{ name: "userId", in: "path", required: true, schema: { type: "string", example: "u_yukimi" } }],
+        responses: {
+          "200": {
+            description: "已记录心动",
+            content: {
+              "application/json": {
+                schema: successInline({
+                  type: "object",
+                  properties: { liked: { type: "boolean", example: true } },
+                }),
+              },
+            },
+          },
+          "400": error(1012, "不能关注自己"),
+          "404": error(1010, "住民不存在"),
         },
       },
     },

@@ -16,6 +16,9 @@ export function toUserPublic(row: UserRow, isFollowing = false): UserPublic {
     level: row.level,
     badges: row.badges ?? [],
     isFollowing,
+    city: row.city ?? "",
+    district: row.district ?? "",
+    hobbies: row.hobbies ?? [],
   };
 }
 

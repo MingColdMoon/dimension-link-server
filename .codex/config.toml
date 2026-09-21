@@ -1,0 +1,3 @@
+[mcp_servers.dbx]
+command = "D:\\nvm\\v24.18.1\\node.exe"
+args = ["D:\\nvm\\v24.18.1\\node_modules\\@dbx-app\\mcp-server\\bin\\dbx-mcp-server.js"]

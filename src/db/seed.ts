@@ -16,6 +16,12 @@ interface SeedUser {
   following: number;
   level: number;
   badges: string[];
+  city: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+  hobbies: string[];
+  online?: boolean;
 }
 
 const USERS: SeedUser[] = [
@@ -31,6 +37,12 @@ const USERS: SeedUser[] = [
     following: 86,
     level: 18,
     badges: ["绘圈新人王", "樱花祭签到", "次元认证"],
+    city: "上海",
+    district: "徐汇",
+    latitude: 31.1886,
+    longitude: 121.437,
+    hobbies: ["插画", "同人", "配色", "短篇"],
+    online: true,
   },
   {
     id: "u_tsukimi",
@@ -44,6 +56,12 @@ const USERS: SeedUser[] = [
     following: 210,
     level: 32,
     badges: ["同人周榜", "连载中"],
+    city: "上海",
+    district: "静安",
+    latitude: 31.2272,
+    longitude: 121.453,
+    hobbies: ["同人", "乙女", "连载", "黑猫"],
+    online: true,
   },
   {
     id: "u_sakurai",
@@ -57,6 +75,12 @@ const USERS: SeedUser[] = [
     following: 340,
     level: 41,
     badges: ["漫展常驻", "COS本命"],
+    city: "上海",
+    district: "黄浦",
+    latitude: 31.2317,
+    longitude: 121.484,
+    hobbies: ["COS", "漫展", "妆造", "约拍"],
+    online: true,
   },
   {
     id: "u_nanami",
@@ -70,6 +94,11 @@ const USERS: SeedUser[] = [
     following: 401,
     level: 24,
     badges: ["耳语鉴定师"],
+    city: "杭州",
+    district: "西湖",
+    latitude: 30.259,
+    longitude: 120.13,
+    hobbies: ["声优", "电台", "广播剧", "角色歌"],
   },
   {
     id: "u_kaede",
@@ -83,6 +112,12 @@ const USERS: SeedUser[] = [
     following: 99,
     level: 29,
     badges: ["开黑车头", "夜猫"],
+    city: "上海",
+    district: "浦东",
+    latitude: 31.2211,
+    longitude: 121.544,
+    hobbies: ["游戏", "开黑", "夜猫", "语音"],
+    online: true,
   },
   {
     id: "u_tanuki",
@@ -96,6 +131,122 @@ const USERS: SeedUser[] = [
     following: 512,
     level: 27,
     badges: ["安利达人"],
+    city: "北京",
+    district: "朝阳",
+    latitude: 39.921,
+    longitude: 116.443,
+    hobbies: ["番剧", "安利", "催泪", "新番"],
+  },
+  {
+    id: "u_yukimi",
+    nickname: "雪见白",
+    handle: "@yukimi_shiro",
+    bio: "水彩插画练习生，和星空同频的人优先回关",
+    signature: "纸面上的雪不会化。",
+    emoji: "❄️",
+    accentIndex: 4,
+    followers: 2100,
+    following: 180,
+    level: 16,
+    badges: ["绘圈同好", "配色控"],
+    city: "上海",
+    district: "徐汇",
+    latitude: 31.191,
+    longitude: 121.441,
+    hobbies: ["插画", "水彩", "同人", "配色"],
+    online: true,
+  },
+  {
+    id: "u_yoru",
+    nickname: "星川夜",
+    handle: "@yoru_star",
+    bio: "夜场约拍 COSER，假发箱比行李箱还沉",
+    signature: "路灯才是我的补光灯。",
+    emoji: "🌙",
+    accentIndex: 6,
+    followers: 7400,
+    following: 233,
+    level: 28,
+    badges: ["夜拍达人", "漫展常驻"],
+    city: "上海",
+    district: "长宁",
+    latitude: 31.2204,
+    longitude: 121.424,
+    hobbies: ["COS", "夜拍", "漫展", "妆造"],
+    online: true,
+  },
+  {
+    id: "u_momo",
+    nickname: "桃井糖",
+    handle: "@momo_sugar",
+    bio: "画甜品也画角色，配色永远站樱花粉",
+    signature: "今日糖分超标。",
+    emoji: "🍑",
+    accentIndex: 0,
+    followers: 3600,
+    following: 420,
+    level: 19,
+    badges: ["绘圈日常", "甜品祭"],
+    city: "杭州",
+    district: "滨江",
+    latitude: 30.208,
+    longitude: 120.212,
+    hobbies: ["绘圈", "甜品", "配色", "插画"],
+  },
+  {
+    id: "u_ritsu",
+    nickname: "雾岛律",
+    handle: "@ritsu_voice",
+    bio: "广播剧后期 / 偶尔也写一点角色小传",
+    signature: "气口比台词更诚实。",
+    emoji: "🎙️",
+    accentIndex: 2,
+    followers: 5100,
+    following: 166,
+    level: 23,
+    badges: ["耳语鉴定师", "同人配音"],
+    city: "广州",
+    district: "天河",
+    latitude: 23.135,
+    longitude: 113.326,
+    hobbies: ["声优", "广播剧", "角色歌", "同人"],
+  },
+  {
+    id: "u_aoi",
+    nickname: "南风葵",
+    handle: "@aoi_wind",
+    bio: "音游和开黑两头跑，语音很温柔",
+    signature: "掉分也要笑着打完这把。",
+    emoji: "🎐",
+    accentIndex: 3,
+    followers: 8800,
+    following: 140,
+    level: 26,
+    badges: ["开黑车头", "音游人"],
+    city: "成都",
+    district: "武侯",
+    latitude: 30.642,
+    longitude: 104.043,
+    hobbies: ["游戏", "开黑", "音游", "语音"],
+  },
+  {
+    id: "u_haku",
+    nickname: "白鸟羽",
+    handle: "@haku_feather",
+    bio: "乙女向同人与番剧考古，评论区安利过载",
+    signature: "下一封信会写给你。",
+    emoji: "🦢",
+    accentIndex: 1,
+    followers: 4700,
+    following: 390,
+    level: 21,
+    badges: ["同人周榜", "乙女雷达"],
+    city: "上海",
+    district: "闵行",
+    latitude: 31.1128,
+    longitude: 121.381,
+    hobbies: ["番剧", "同人", "乙女", "短篇"],
+    online: true,
   },
 ];
 
@@ -170,15 +321,72 @@ async function demoHash(): Promise<string> {
   return cachedPasswordHash;
 }
 
+async function upsertMatchPortraits(pg: Pool, passwordHash: string): Promise<void> {
+  for (const user of USERS) {
+    const normalized = user.handle.replace(/^@/, "").toLowerCase();
+    const seen = user.online ? new Date() : new Date(Date.now() - 3 * 3600_000);
+    await pg.query(
+      `INSERT INTO users (
+         id, nickname, handle, handle_normalized, bio, signature, emoji,
+         accent_index, followers, following, level, badges, password_hash,
+         city, district, latitude, longitude, hobbies, last_seen_at
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+       ON CONFLICT (id) DO UPDATE SET
+         city = EXCLUDED.city,
+         district = EXCLUDED.district,
+         latitude = EXCLUDED.latitude,
+         longitude = EXCLUDED.longitude,
+         hobbies = EXCLUDED.hobbies,
+         last_seen_at = EXCLUDED.last_seen_at`,
+      [
+        user.id,
+        user.nickname,
+        user.handle,
+        normalized,
+        user.bio,
+        user.signature,
+        user.emoji,
+        user.accentIndex,
+        user.followers,
+        user.following,
+        user.level,
+        user.badges,
+        passwordHash,
+        user.city,
+        user.district,
+        user.latitude,
+        user.longitude,
+        user.hobbies,
+        seen,
+      ],
+    );
+  }
+  const extraMemberships: Array<[string, string]> = [
+    ["c_art", "u_yukimi"],
+    ["c_cos", "u_yoru"],
+    ["c_art", "u_momo"],
+    ["c_voice", "u_ritsu"],
+    ["c_game", "u_aoi"],
+    ["c_doujin", "u_haku"],
+  ];
+  for (const [circleId, userId] of extraMemberships) {
+    await pg.query(
+      "INSERT INTO circle_members (circle_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+      [circleId, userId],
+    );
+  }
+}
+
 /** 导入与 Flutter mock 对齐的联调种子；默认仅在库为空时写入 */
 export async function seed(pg: Pool, options?: { force?: boolean }): Promise<void> {
+  const passwordHash = await demoHash();
   if (!options?.force) {
     const exists = await pg.query("SELECT 1 FROM users WHERE id = 'u_me'");
     if (exists.rows[0]) {
+      await upsertMatchPortraits(pg, passwordHash);
       return;
     }
   }
-  const passwordHash = await demoHash();
   const client = await pg.connect();
   try {
     await client.query("BEGIN");
@@ -203,8 +411,9 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
       await client.query(
         `INSERT INTO users (
            id, nickname, handle, handle_normalized, bio, signature, emoji,
-           accent_index, followers, following, level, badges, password_hash
-         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+           accent_index, followers, following, level, badges, password_hash,
+           city, district, latitude, longitude, hobbies, last_seen_at
+         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
          ON CONFLICT (id) DO UPDATE SET
            nickname = EXCLUDED.nickname,
            handle = EXCLUDED.handle,
@@ -217,7 +426,13 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
            following = EXCLUDED.following,
            level = EXCLUDED.level,
            badges = EXCLUDED.badges,
-           password_hash = EXCLUDED.password_hash`,
+           password_hash = EXCLUDED.password_hash,
+           city = EXCLUDED.city,
+           district = EXCLUDED.district,
+           latitude = EXCLUDED.latitude,
+           longitude = EXCLUDED.longitude,
+           hobbies = EXCLUDED.hobbies,
+           last_seen_at = EXCLUDED.last_seen_at`,
         [
           user.id,
           user.nickname,
@@ -232,6 +447,12 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
           user.level,
           user.badges,
           passwordHash,
+          user.city,
+          user.district,
+          user.latitude,
+          user.longitude,
+          user.hobbies,
+          user.online ? new Date() : new Date(Date.now() - 3 * 3600_000),
         ],
       );
     }
@@ -264,6 +485,12 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
       ["c_anime", "u_tanuki"],
       ["c_game", "u_kaede"],
       ["c_voice", "u_nanami"],
+      ["c_art", "u_yukimi"],
+      ["c_cos", "u_yoru"],
+      ["c_art", "u_momo"],
+      ["c_voice", "u_ritsu"],
+      ["c_game", "u_aoi"],
+      ["c_doujin", "u_haku"],
     ];
     for (const [circleId, userId] of extraMemberships) {
       await client.query("INSERT INTO circle_members (circle_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING", [
@@ -406,7 +633,11 @@ export async function seed(pg: Pool, options?: { force?: boolean }): Promise<voi
       ["cv_group", "漫展小队", "u_me"],
     );
     for (const memberId of ["u_me", "u_sakurai", "u_tsukimi"]) {
-      await client.query("INSERT INTO conversation_members (conversation_id, user_id) VALUES ($1,$2)", ["cv_group", memberId]);
+      await client.query("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES ($1,$2,$3)", [
+        "cv_group",
+        memberId,
+        memberId === "u_me" ? "owner" : memberId === "u_sakurai" ? "admin" : "member",
+      ]);
       await client.query("INSERT INTO conversation_unreads (conversation_id, user_id, unread) VALUES ($1,$2,0)", [
         "cv_group",
         memberId,

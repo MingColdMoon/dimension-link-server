@@ -36,6 +36,9 @@ export interface UserPublic {
   level: number;
   badges: string[];
   isFollowing: boolean;
+  city?: string;
+  district?: string;
+  hobbies?: string[];
   joinedCircleIds?: string[];
 }
 
@@ -80,11 +83,16 @@ export interface CommentItem {
   createdAt: string;
 }
 
+export type MessageKind = "text" | "image" | "system";
+export type GroupRole = "owner" | "admin" | "member";
+
 export interface ChatMessageItem {
   id: string;
   senderId: string;
   text: string;
   createdAt: string;
+  kind: MessageKind;
+  imageUrl: string | null;
 }
 
 export interface ConversationItem {
@@ -92,6 +100,9 @@ export interface ConversationItem {
   kind: "direct" | "group";
   title: string | null;
   ownerId: string | null;
+  adminIds: string[];
+  mutedUserIds: string[];
+  groupMuted: boolean;
   members: UserPublic[];
   peer: UserPublic;
   unread: number;

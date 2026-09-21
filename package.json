@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "docker:up": "docker compose up -d postgres redis",
     "docker:down": "docker compose down",
-    "up": "powershell -NoProfile -ExecutionPolicy Bypass -File ./start.ps1"
+    "up": "powershell -NoProfile -ExecutionPolicy Bypass -File ./start.ps1",
+    "pack": "powershell -NoProfile -ExecutionPolicy Bypass -File ./pack.ps1"
   },
   "dependencies": {
     "@koa/bodyparser": "^5.1.1",

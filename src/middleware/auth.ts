@@ -23,6 +23,7 @@ export function requireAuth(deps: AppDeps) {
 
     const user: AuthUser = { id: payload.sub, accessJti: payload.jti };
     ctx.state.user = user;
+    await deps.pg.query("UPDATE users SET last_seen_at = now() WHERE id = $1", [user.id]);
     await next();
   };
 }

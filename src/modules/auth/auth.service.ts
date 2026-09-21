@@ -71,8 +71,9 @@ export class AuthService {
       const inserted = await client.query<UserRow>(
         `INSERT INTO users (
            id, nickname, handle, handle_normalized, bio, signature, emoji,
-           accent_index, followers, following, level, badges, password_hash
-         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,0,1,$9,$10)
+           accent_index, followers, following, level, badges, password_hash,
+           city, district, latitude, longitude, hobbies, last_seen_at
+         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,0,0,1,$9,$10,'上海','徐汇',31.1886,121.437,'{}', now())
          RETURNING ${USER_PUBLIC_COLUMNS}`,
         [
           id,

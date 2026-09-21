@@ -9,9 +9,11 @@ import { createConversationRouter } from "./modules/conversations/conversations.
 import { createHealthRouter } from "./modules/health/health.routes.js";
 import { createNoticeRouter } from "./modules/notices/notices.routes.js";
 import { createPostRouter } from "./modules/posts/posts.routes.js";
+import { createMatchRouter } from "./modules/match/match.routes.js";
 import { createSearchRouter } from "./modules/search/search.routes.js";
 import { createUserRouter } from "./modules/users/users.routes.js";
 import { createSwaggerRouter } from "./docs/swagger.routes.js";
+import { serveUploads } from "./common/uploads.js";
 import type { AppDeps } from "./types.js";
 
 export function createKoaApp(deps: AppDeps): Koa {
@@ -27,7 +29,8 @@ export function createKoaApp(deps: AppDeps): Koa {
       allowHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
     }),
   );
-  app.use(bodyParser({ encoding: "utf-8", enableTypes: ["json"] }));
+  app.use(bodyParser({ encoding: "utf-8", enableTypes: ["json"], jsonLimit: "4mb" }));
+  app.use(serveUploads());
 
   const routers = [
     createSwaggerRouter(),
@@ -39,6 +42,7 @@ export function createKoaApp(deps: AppDeps): Koa {
     createConversationRouter(deps),
     createNoticeRouter(deps),
     createSearchRouter(deps),
+    createMatchRouter(deps),
   ];
 
   for (const router of routers) {

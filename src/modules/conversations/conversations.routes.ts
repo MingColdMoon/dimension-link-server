@@ -14,6 +14,19 @@ const ensureSchema = z.object({
 
 const messageSchema = z.object({
   text: z.string().optional(),
+  kind: z.enum(["text", "image"]).optional(),
+  imageUrl: z.string().optional(),
+  imageBase64: z.string().optional(),
+  mimeType: z.string().optional(),
+});
+
+const userSchema = z.object({
+  userId: z.string().min(1),
+});
+
+const muteSchema = z.object({
+  userId: z.string().optional(),
+  muted: z.boolean(),
 });
 
 export function createConversationRouter(deps: AppDeps): Router<AppState, AppContext> {
@@ -38,6 +51,10 @@ export function createConversationRouter(deps: AppDeps): Router<AppState, AppCon
     ctx.body = ok(await service.ensure(ctx.state.user!.id, input.peerId));
   });
 
+  router.get("/:id", async (ctx) => {
+    ctx.body = ok(await service.get(ctx.state.user!.id, ctx.params.id));
+  });
+
   router.get("/:id/messages", async (ctx) => {
     ctx.body = ok(
       await service.listMessages(ctx.state.user!.id, ctx.params.id, {
@@ -49,11 +66,34 @@ export function createConversationRouter(deps: AppDeps): Router<AppState, AppCon
 
   router.post("/:id/messages", async (ctx) => {
     const input = parseBody(messageSchema, ctx.request.body ?? {});
-    ctx.body = ok(await service.send(ctx.state.user!.id, ctx.params.id, input.text));
+    ctx.body = ok(await service.send(ctx.state.user!.id, ctx.params.id, input));
   });
 
   router.post("/:id/read", async (ctx) => {
     ctx.body = ok(await service.markRead(ctx.state.user!.id, ctx.params.id));
+  });
+
+  router.post("/:id/admins", async (ctx) => {
+    const input = parseBody(userSchema, ctx.request.body ?? {});
+    ctx.body = ok(await service.setAdmin(ctx.state.user!.id, ctx.params.id, input.userId, true));
+  });
+
+  router.delete("/:id/admins/:userId", async (ctx) => {
+    ctx.body = ok(await service.setAdmin(ctx.state.user!.id, ctx.params.id, ctx.params.userId, false));
+  });
+
+  router.post("/:id/mute", async (ctx) => {
+    const input = parseBody(muteSchema, ctx.request.body ?? {});
+    ctx.body = ok(await service.setMute(ctx.state.user!.id, ctx.params.id, input));
+  });
+
+  router.post("/:id/kick", async (ctx) => {
+    const input = parseBody(userSchema, ctx.request.body ?? {});
+    ctx.body = ok(await service.kick(ctx.state.user!.id, ctx.params.id, input.userId));
+  });
+
+  router.post("/:id/leave", async (ctx) => {
+    ctx.body = ok(await service.leave(ctx.state.user!.id, ctx.params.id));
   });
 
   return router;
